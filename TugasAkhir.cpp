@@ -19,11 +19,13 @@ void Demo::Init() {
 
 	BuildColoredBladeRotor();
 	BuildColoredShaftBlade();
+	BuildColoredShaftBlade2();
 	BuildColoredPlane();
 	BuildColoredBody();
 	BuildColoredSmallBody();
 	BuildColoredSmallShaftBlade();
 	BuildColoredSmallBladeRotor();
+	BuildColoredAyunan();
 	InitCamera();
 }
 
@@ -37,6 +39,16 @@ void Demo::DeInit() {
 	glDeleteVertexArrays(1, &VAO2);
 	glDeleteBuffers(1, &VBO2);
 	glDeleteBuffers(1, &EBO2);
+
+	glDeleteVertexArrays(1, &VAO3);
+	glDeleteBuffers(1, &VBO3);
+	glDeleteBuffers(1, &EBO3);
+
+	glDeleteVertexArrays(1, &VAO4);
+	glDeleteBuffers(1, &VBO4);
+	glDeleteBuffers(1, &EBO4);
+
+
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -59,7 +71,6 @@ void Demo::ProcessInput(GLFWwindow *window) {
 			fovy -= 0.0001f;
 		}
 	}
-
 
 	// update camera movement 
 	// -------------
@@ -110,11 +121,20 @@ void Demo::ProcessInput(GLFWwindow *window) {
 		viewCamY = posCamY - 8;
 	}
 	RotateCamera(-angleY);
+
+
+
 }
 
 void Demo::Update(double deltaTime) {
-    angle += (float)((deltaTime * 1.5f) / 100);
-    movement += (float)((3.0f * deltaTime) / 25);
+	if (angle >= 0.45)
+		dir = false;
+	if (angle <= -0.45)
+		dir = true;
+	if(dir)
+		angle += (float) ((deltaTime * 1.5f) / 2500);
+	else
+		angle -= (float)((deltaTime * 1.5f) / 2500);
 }
 
 void Demo::Render() {
@@ -133,20 +153,29 @@ void Demo::Render() {
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	// LookAt camera (position, target/direction, up)
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 15), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 20), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	GLint viewLoc = glGetUniformLocation(this->shaderProgram, "view");
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	
-    DrawColoredLine();
-    DrawHeli();
+	DrawColoredSmallBladeRotor();
+	DrawColoredBladeRotor();
+	DrawColoredShaftBlade();
+	DrawColoredShaftBlade2();
+	DrawColoredShaftBlade3();
 	DrawColoredPlane();
+	DrawColoredBody();
+	DrawColoredSmallBody();
+	DrawColoredSmallShaftBlade();
+	DrawColoredAyunan();
+	DrawColoredAyunan2();
+	DrawColoredAyunan3();
+	DrawColoredAyunan4();
+	DrawColoredAyunan5();
+	DrawColoredAyunan6();
+
 	glDisable(GL_DEPTH_TEST);
 }
-
-void Demo::BuildColoredLine() {
-
-}
-
+//Jungkat-jungkit
 void Demo::BuildColoredSmallBladeRotor() {
 	// load image into texture memory
 	// ------------------------------
@@ -239,9 +268,10 @@ void Demo::BuildColoredSmallBladeRotor() {
 	glBindVertexArray(0);
 
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 1);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
+
 void Demo::BuildColoredBladeRotor() {
 	// load image into texture memory
 	// ------------------------------
@@ -337,6 +367,7 @@ void Demo::BuildColoredBladeRotor() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
+
 void Demo::BuildColoredShaftBlade() {
 	// load image into texture memory
 	// ------------------------------
@@ -432,6 +463,198 @@ void Demo::BuildColoredShaftBlade() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
+
+void Demo::BuildColoredShaftBlade2() {
+	// load image into texture memory
+	// ------------------------------
+	// Load and create a texture 
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int width, height;
+	unsigned char* image = SOIL_load_image("crate.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// ------------------------------------------------------------------
+	float vertices[] = {
+		// format position, tex coords
+		// front
+		-0.5, -0.5, 0.5, 0, 0,  // 0
+		0.5, -0.5, 0.5, 1, 0,   // 1
+		0.5,  0.5, 0.5, 1, 1,   // 2
+		-0.5,  0.5, 0.5, 0, 1,  // 3
+
+		// right
+		0.5,  0.5,  0.5, 0, 0,  // 4
+		0.5,  0.5, -0.5, 1, 0,  // 5
+		0.5, -0.5, -0.5, 1, 1,  // 6
+		0.5, -0.5,  0.5, 0, 1,  // 7
+
+		// back
+		-0.5, -0.5, -0.5, 0, 0, // 8 
+		0.5,  -0.5, -0.5, 1, 0, // 9
+		0.5,   0.5, -0.5, 1, 1, // 10
+		-0.5,  0.5, -0.5, 0, 1, // 11
+
+		// left
+		-0.5, -0.5, -0.5, 0, 0, // 12
+		-0.5, -0.5,  0.5, 1, 0, // 13
+		-0.5,  0.5,  0.5, 1, 1, // 14
+		-0.5,  0.5, -0.5, 0, 1, // 15
+
+		// upper
+		0.5, 0.5,  0.5, 0, 0,   // 16
+		-0.5, 0.5,  0.5, 1, 0,  // 17
+		-0.5, 0.5, -0.5, 1, 1,  // 18
+		0.5, 0.5, -0.5, 0, 1,   // 19
+
+		// bottom
+		-0.5, -0.5, -0.5, 0, 0, // 20
+		0.5, -0.5, -0.5, 1, 0,  // 21
+		0.5, -0.5,  0.5, 1, 1,  // 22
+		-0.5, -0.5,  0.5, 0, 1, // 23
+	};
+
+	unsigned int indices[] = {
+		0,  1,  2,  0,  2,  3,   // front
+		4,  5,  6,  4,  6,  7,   // right
+		8,  9,  10, 8,  10, 11,  // back
+		12, 14, 13, 12, 15, 14,  // left
+		16, 18, 17, 16, 19, 18,  // upper
+		20, 22, 21, 20, 23, 22   // bottom
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// define position pointer layout 0
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(0);
+
+	// define texcoord pointer layout 1
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(0);
+
+	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+}
+void Demo::BuildColoredShaftBlade3() {
+	// load image into texture memory
+	// ------------------------------
+	// Load and create a texture 
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int width, height;
+	unsigned char* image = SOIL_load_image("crate.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// ------------------------------------------------------------------
+	float vertices[] = {
+		// format position, tex coords
+		// front
+		-0.5, -0.5, 0.5, 0, 0,  // 0
+		0.5, -0.5, 0.5, 1, 0,   // 1
+		0.5,  0.5, 0.5, 1, 1,   // 2
+		-0.5,  0.5, 0.5, 0, 1,  // 3
+
+		// right
+		0.5,  0.5,  0.5, 0, 0,  // 4
+		0.5,  0.5, -0.5, 1, 0,  // 5
+		0.5, -0.5, -0.5, 1, 1,  // 6
+		0.5, -0.5,  0.5, 0, 1,  // 7
+
+		// back
+		-0.5, -0.5, -0.5, 0, 0, // 8 
+		0.5,  -0.5, -0.5, 1, 0, // 9
+		0.5,   0.5, -0.5, 1, 1, // 10
+		-0.5,  0.5, -0.5, 0, 1, // 11
+
+		// left
+		-0.5, -0.5, -0.5, 0, 0, // 12
+		-0.5, -0.5,  0.5, 1, 0, // 13
+		-0.5,  0.5,  0.5, 1, 1, // 14
+		-0.5,  0.5, -0.5, 0, 1, // 15
+
+		// upper
+		0.5, 0.5,  0.5, 0, 0,   // 16
+		-0.5, 0.5,  0.5, 1, 0,  // 17
+		-0.5, 0.5, -0.5, 1, 1,  // 18
+		0.5, 0.5, -0.5, 0, 1,   // 19
+
+		// bottom
+		-0.5, -0.5, -0.5, 0, 0, // 20
+		0.5, -0.5, -0.5, 1, 0,  // 21
+		0.5, -0.5,  0.5, 1, 1,  // 22
+		-0.5, -0.5,  0.5, 0, 1, // 23
+	};
+
+	unsigned int indices[] = {
+		0,  1,  2,  0,  2,  3,   // front
+		4,  5,  6,  4,  6,  7,   // right
+		8,  9,  10, 8,  10, 11,  // back
+		12, 14, 13, 12, 15, 14,  // left
+		16, 18, 17, 16, 19, 18,  // upper
+		20, 22, 21, 20, 23, 22   // bottom
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// define position pointer layout 0
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(0);
+
+	// define texcoord pointer layout 1
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(0);
+
+	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+}
+
 void Demo::BuildColoredPlane()
 {
 	// Load and create a texture 
@@ -484,6 +707,7 @@ void Demo::BuildColoredPlane()
 
 	glBindVertexArray(0); // Unbind VAO
 }
+
 void Demo::BuildColoredBody() {
 	// load image into texture memory
 	// ------------------------------
@@ -579,6 +803,7 @@ void Demo::BuildColoredBody() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
+
 void Demo::BuildColoredSmallBody() {
 	// load image into texture memory
 	// ------------------------------
@@ -673,6 +898,7 @@ void Demo::BuildColoredSmallBody() {
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
 void Demo::BuildColoredSmallShaftBlade() {
 	// load image into texture memory
 	// ------------------------------
@@ -768,21 +994,105 @@ void Demo::BuildColoredSmallShaftBlade() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
-//Bezier
-void Demo::DrawColoredLine() {
-    
+
+//Ayunan
+void Demo::BuildColoredAyunan() {
+	// load image into texture memory
+	// ------------------------------
+	// Load and create a texture 
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	int width, height;
+	unsigned char* image = SOIL_load_image("crate.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// ------------------------------------------------------------------
+	float vertices[] = {
+		// format position, tex coords
+		// front
+		-0.5, -0.5, 0.5, 0, 0,  // 0
+		0.5, -0.5, 0.5, 1, 0,   // 1
+		0.5,  0.5, 0.5, 1, 1,   // 2
+		-0.5,  0.5, 0.5, 0, 1,  // 3
+
+		// right
+		0.5,  0.5,  0.5, 0, 0,  // 4
+		0.5,  0.5, -0.5, 1, 0,  // 5
+		0.5, -0.5, -0.5, 1, 1,  // 6
+		0.5, -0.5,  0.5, 0, 1,  // 7
+
+		// back
+		-0.5, -0.5, -0.5, 0, 0, // 8 
+		0.5,  -0.5, -0.5, 1, 0, // 9
+		0.5,   0.5, -0.5, 1, 1, // 10
+		-0.5,  0.5, -0.5, 0, 1, // 11
+
+		// left
+		-0.5, -0.5, -0.5, 0, 0, // 12
+		-0.5, -0.5,  0.5, 1, 0, // 13
+		-0.5,  0.5,  0.5, 1, 1, // 14
+		-0.5,  0.5, -0.5, 0, 1, // 15
+
+		// upper
+		0.5, 0.5,  0.5, 0, 0,   // 16
+		-0.5, 0.5,  0.5, 1, 0,  // 17
+		-0.5, 0.5, -0.5, 1, 1,  // 18
+		0.5, 0.5, -0.5, 0, 1,   // 19
+
+		// bottom
+		-0.5, -0.5, -0.5, 0, 0, // 20
+		0.5, -0.5, -0.5, 1, 0,  // 21
+		0.5, -0.5,  0.5, 1, 1,  // 22
+		-0.5, -0.5,  0.5, 0, 1, // 23
+	};
+
+	unsigned int indices[] = {
+		0,  1,  2,  0,  2,  3,   // front
+		4,  5,  6,  4,  6,  7,   // right
+		8,  9,  10, 8,  10, 11,  // back
+		12, 14, 13, 12, 15, 14,  // left
+		16, 18, 17, 16, 19, 18,  // upper
+		20, 22, 21, 20, 23, 22   // bottom
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// define position pointer layout 0
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(0);
+
+	// define texcoord pointer layout 1
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	glBindVertexArray(0);
+
+	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 }
 
-//Heli
-void Demo::DrawHeli()
-{
-    DrawColoredSmallBladeRotor();
-    DrawColoredBladeRotor();
-    DrawColoredShaftBlade();
-    DrawColoredBody();
-    DrawColoredSmallBody();
-    DrawColoredSmallShaftBlade();
-}
+
 //Baling-baling belakang
 void Demo::DrawColoredSmallBladeRotor()
 {
@@ -795,17 +1105,11 @@ void Demo::DrawColoredSmallBladeRotor()
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
 	glm::mat4 model;
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 7.2) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-2.8)) + ((float)i / 999 * (float)i / 999 * (-12.8));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (2.2)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 7.1) + ((float)i / 999 * (float)i / 999 * 1.1);
-    }
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i], bezier[1][i], 0));
+	model = glm::translate(model, glm::vec3(-movement + 7.2, 2.2, 0));
+
 	model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
-	model = glm::scale(model, glm::vec3(4, 0.8, 0.2));
+
+	model = glm::scale(model, glm::vec3(0, 0, 0));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -827,21 +1131,12 @@ void Demo::DrawColoredBladeRotor()
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 0) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-10)) + ((float)i / 999 * (float)i / 999 * (-20));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (4.7)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 9.6) + ((float)i / 999 * (float)i / 999 * 3.6);
-    }
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 2.5, 0));
 
-    glm::mat4 model;
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i], bezier[1][i], 0));
+	model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
 
-	model = glm::rotate(model, angle, glm::vec3(0, 1, 0));
-
-	model = glm::scale(model, glm::vec3(8, 0.2, 0.8));
+	model = glm::scale(model, glm::vec3(12, 1, 5));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -852,7 +1147,7 @@ void Demo::DrawColoredBladeRotor()
 	glBindVertexArray(0);
 }
 
-//Posisi dan bentuk kubus atas baling-baling
+//Posisi tempat duduk
 void Demo::DrawColoredShaftBlade()
 {
 	glUseProgram(shaderProgram);
@@ -863,21 +1158,67 @@ void Demo::DrawColoredShaftBlade()
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 0) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-10)) + ((float)i / 999 * (float)i / 999 * (-20));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (4)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 8.9) + ((float)i / 999 * (float)i / 999 * 2.9);
-    }
-
-    glm::mat4 model;
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i], bezier[1][i], 0));
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 1.8, 0));
 
 	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
 
-	model = glm::scale(model, glm::vec3(1, 1, 1));
+	model = glm::scale(model, glm::vec3(1, 2, 2));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+void Demo::DrawColoredShaftBlade2()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 3, 0));
+	model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+	model = glm::translate(model, glm::vec3(-4.8, 0, 0));
+
+	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
+
+	model = glm::scale(model, glm::vec3(0.5, 2, 1));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredShaftBlade3()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 3, 0));
+	model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+	model = glm::translate(model, glm::vec3(4.8, 0, 0));
+
+	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
+
+	model = glm::scale(model, glm::vec3(0.5, 2, 1));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -917,20 +1258,13 @@ void Demo::DrawColoredBody()
 	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 0) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-10)) + ((float)i / 999 * (float)i / 999 * (-20));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (2.1)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 7) + ((float)i / 999 * (float)i / 999 * 1);
-    }
 
 	glm::mat4 model;
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i],bezier[1][i], 0));
+	model = glm::translate(model, glm::vec3(0, 0, 0));
+
 	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
 
-	model = glm::scale(model, glm::vec3(4, 3, 2));
+	model = glm::scale(model, glm::vec3(2, 1.8, 2));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -940,7 +1274,7 @@ void Demo::DrawColoredBody()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 }
-//Posisi dan bentuk kubus 2
+//Posisi dan bentuk kubus 2 //dihapus
 void Demo::DrawColoredSmallBody()
 {
 	glUseProgram(shaderProgram);
@@ -951,21 +1285,12 @@ void Demo::DrawColoredSmallBody()
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 4.2) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-5.8)) + ((float)i / 999 * (float)i / 999 * (-15.8));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (2.1)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 7) + ((float)i / 999 * (float)i / 999 * 1);
-    }
-
-    glm::mat4 model;
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i], bezier[1][i], 0));
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 0, 0));
 
 	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
 
-	model = glm::scale(model, glm::vec3(4.8, 1.8, 2));
+	model = glm::scale(model, glm::vec3(0, 0, 0));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -975,7 +1300,7 @@ void Demo::DrawColoredSmallBody()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 }
-//Posisi dan bentuk kubus 3
+//Belum
 void Demo::DrawColoredSmallShaftBlade()
 {
 	glUseProgram(shaderProgram);
@@ -986,21 +1311,12 @@ void Demo::DrawColoredSmallShaftBlade()
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
-    for (int j = 0; j < 1000; j++) {
-        bezier[0][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * 7.1) + (2 * (1 - (float)i / 999) * (float)i / 999 * (-2.9)) + ((float)i / 999 * (float)i / 999 * (-12.9));
-        bezier[1][j] = ((1 - (float)i / 999) * (1 - (float)i / 999) * (2.2)) + (2 * (1 - (float)i / 999) * (float)i / 999 * 7.1) + ((float)i / 999 * (float)i / 999 * 1.1);
-    }
-
-    glm::mat4 model;
-    if (movement < 1000)
-        i = (int)movement;
-    else
-        i = 999;
-    model = glm::translate(model, glm::vec3(bezier[0][i], bezier[1][i], 0));
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(7.2, 2.2, 0));
 
 	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
 
-	model = glm::scale(model, glm::vec3(1, 1, 1));
+	model = glm::scale(model, glm::vec3(0, 0, 0));
 
 	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -1010,6 +1326,160 @@ void Demo::DrawColoredSmallShaftBlade()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 }
+
+//Ayunan
+void Demo::DrawColoredAyunan()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(17, 0, -6));
+
+	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
+
+	model = glm::scale(model, glm::vec3(0.5, 14, 1));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredAyunan2()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(10, 0, -6));
+
+	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
+
+	model = glm::scale(model, glm::vec3(0.5, 14, 1));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredAyunan3()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(13.5, 7, -6));
+
+	//model = glm::rotate(model, angle, glm::vec3(0, 0, 0));
+
+	model = glm::scale(model, glm::vec3(9, 0.5, 0.5));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredAyunan4()
+{
+	glUseProgram(shaderProgram);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(12, 7, -6));
+
+	model = glm::rotate(model, angle, glm::vec3(1, 0, 0));
+	model = glm::translate(model, glm::vec3(0, -3, 0));
+	model = glm::scale(model, glm::vec3(0.2, 6, 0.2));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredAyunan5()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(15, 7, -6));
+
+	model = glm::rotate(model, angle, glm::vec3(1, 0, 0));
+	model = glm::translate(model, glm::vec3(0, -3, 0));
+	model = glm::scale(model, glm::vec3(0.2, 6, 0.2));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+void Demo::DrawColoredAyunan6()
+{
+	glUseProgram(shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+
+	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(13.5, 7, -6));
+
+	model = glm::rotate(model, angle, glm::vec3(1, 0, 0));
+	model = glm::translate(model, glm::vec3(0, -5.5, 0));
+	model = glm::scale(model, glm::vec3(3, 1, 1));
+
+	GLint modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+}
+
+
+
+
+
 
 void Demo::InitCamera()
 {
